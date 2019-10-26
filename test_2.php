@@ -20,6 +20,62 @@ class Company {
     }
 }
 
+function which_companies_matches( $person_rules, $companies )
+{
+    foreach ($companies as $company) {
+        $rules = $company->get_rules();
+        $requirements = array();
+
+        for ($i = 0; $i < sizeof( $rules ) - 1; $i++) { 
+            $match_rule = false;
+
+            if ( sizeof( $rules[ $i ] ) > 0 ) {
+                foreach ($person_rules as $person_rule) {
+                    if ( in_array( $person_rule, $rules[ $i ] ) ) {
+                        $condition = $rules[ $i ][ sizeof( $rules[ $i ] ) - 1 ];
+                        if ( $condition == 'and' ) {
+                            foreach ($rules[ $i ] as $item) {
+                                if ( !in_array( $item, $person_rules ) ) {
+                                    $match_rule = false;
+                                    break;
+                                }
+                            }
+                        } else {
+                            $match_rule = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                $match_rule = true;
+            }
+            $requirements[] = $match_rule;
+        }
+
+        $company_match = true;
+        if ( $rules[ sizeof( $rules ) - 1 ] == 'and' ) {
+            foreach ( $requirements as $requirement ) {
+                if ( !$requirement ) {
+                    $company_match = false;
+                    break;
+                }
+            }
+        } else {
+            $company_match = false;
+            foreach ( $requirements as $requirement ) {
+                if ( $requirement ) {
+                    $company_match = true;
+                    break;
+                }
+            }
+        }
+
+        if ( $company_match ) {
+            echo '--- ' . $company->get_name() . ' approved ' . PHP_EOL;
+        }
+    }
+}
+
 $companies = array(
     new Company( 'Company A', array( 
                 array(
@@ -124,64 +180,9 @@ $companies = array(
                 array(
                     'paypal_account',
                 ),
-                'and'
+                'none'
             )
         ),                
 );
 
-$person_rules = array( 'bike', 'drivers_licence' );
-
-foreach ($companies as $company) {
-    $rules = $company->get_rules();
-    $requirements = array();
-
-    for ($i = 0; $i < sizeof( $rules ) - 1; $i++) { 
-        $match_rule = false;
-
-        if ( sizeof( $rules[ $i ] ) > 0 ) {
-            foreach ($person_rules as $person_rule) {
-                if ( in_array( $person_rule, $rules[ $i ] ) ) {
-                    $condition = $rules[ $i ][ sizeof( $rules[ $i ] ) - 1 ];
-                    if ( $condition == 'and' ) {
-                        foreach ($rules[ $i ] as $item) {
-                            if ( !in_array( $item, $person_rules ) ) {
-                                $match_rule = false;
-                                break;
-                            }
-                        }
-                    } else {
-                        $match_rule = true;
-                        break;
-                    }
-                }
-            }
-        } else {
-            $match_rule = true;
-        }
-        $requirements[] = $match_rule;
-    }
-
-    $company_match = true;
-    if ( $rules[ sizeof( $rules ) - 1 ] == 'and' ) {
-        foreach ( $requirements as $requirement ) {
-            if ( !$requirement ) {
-                $company_match = false;
-                break;
-            }
-        }
-    } else {
-        $company_match = false;
-        foreach ( $requirements as $requirement ) {
-            if ( $requirement ) {
-                $company_match = true;
-                break;
-            }
-        }
-    }
-
-    if ( $company_match ) {
-        echo $company->get_name() . ' approved ' . PHP_EOL;
-        // var_dump( $requirements );
-        echo '---' . PHP_EOL;
-    }
-}
+which_companies_matches( array( 'bike', 'drivers_licence' ), $companies );
