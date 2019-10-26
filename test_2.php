@@ -1,37 +1,5 @@
 <?php
 
-function recursive_array_search($needle, $haystack, $currentKey = '') {
-    foreach($haystack as $key=>$value) {
-        if (is_array($value)) {
-            $nextKey = recursive_array_search($needle,$value, $currentKey . '[' . $key . ']');
-            if ($nextKey) {
-                return $nextKey;
-            }
-        }
-        else if($value==$needle) {
-            return is_numeric($key) ? $currentKey . '[' .$key . ']' : $currentKey;
-        }
-    }
-    return false;
-}
-
-
-class Requirements {
-
-    private $apartment = false;
-    private $house = false;
-
-    function __construct( $options )
-    {
-        if ( isset( $options['apartment'] ) ) {
-            $this->apartment = $options['apartment'];
-        }
-        if ( isset( $options['house'] ) ) {
-            $this->house = $options['house'];
-        }
-    }
-}
-
 class Company {
 
     private $name = '';
@@ -213,9 +181,7 @@ foreach ($companies as $company) {
 
     if ( $company_match ) {
         echo $company->get_name() . ' approved ' . PHP_EOL;
-        var_dump( $requirements );
+        // var_dump( $requirements );
         echo '---' . PHP_EOL;
     }
-
-
 }
